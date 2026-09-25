@@ -1,4 +1,3 @@
-Warning: fs was declared with const; use let for reassignable variables.
 // 此文件由 scripts/export_reversal_mechanisms.py 自动生成，请勿手动修改。
 var REVERSAL_MECHANISM_LIBRARY = {
   "schema_version": "reversal-mechanism-library-v2",
