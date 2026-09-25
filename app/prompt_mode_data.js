@@ -1,4 +1,3 @@
-Warning: fs was declared with const; use let for reassignable variables.
 // 此文件由 scripts/export_prompt_modes.py 自动生成，请勿手动修改。
 var PROMPT_MODE_LIBRARY = {
   "generated_at": "2026-08-29T18:38:16+08:00",
