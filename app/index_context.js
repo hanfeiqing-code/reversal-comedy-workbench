@@ -1,4 +1,3 @@
-Warning: fs was declared with const; use let for reassignable variables.
 "use strict";
 
 var VOCABULARY_CONTEXT_STORAGE_PREFIX = "vocabulary_context_v1_";
