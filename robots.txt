@@ -1,4 +1,3 @@
-Warning: fs was declared with const; use let for reassignable variables.
 User-agent: *
 Allow: /
 Sitemap: https://reversal-comedy-workbench.simple-mark865.chatgpt.site/sitemap.xml
