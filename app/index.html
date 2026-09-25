@@ -1,0 +1,153 @@
+Warning: fs was declared with const; use let for reassignable variables.
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>低词汇量反转喜剧动画故事生产流程工具</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <main class="page">
+    <p class="small-note">候选池优先保有足够自然双词供给。</p>
+    <section class="top">
+      <h1>反转喜剧动画故事生产流程工具</h1>
+      <p>纯 HTML / CSS / JavaScript 离线工具，双击即可使用，不联网、不接 API。</p>
+      <p>选择短篇或中长篇模式，输入4个目标词并选择角色。短篇V3共7张卡，短篇正式剧本每集控制在60秒以内。Step02—Step04先执行现实基线、单一因果、空间拓扑、角色职责、道具必要性、复杂度和静音理解硬门；不合格候选在内部重写或重选。Step04的A/B评估与C卡只在编排器内部完成，Step05表达素材也只内部交接；最终用户只接收Step06通过门禁后的固定3+3剧本。</p>
+      <p>本轮上游校准：4个用户目标词是固定学习包资产，Step04围绕story_id × target_word × Top6组合决策，而非淘汰目标词。拟分配关系须由Step02/03既有事实证明两个独立、可回应的交流空间；普通物体或环境的物理反馈不能单独充当listener。若语义硬门失败，内部按return_to_upstream退回Step02/Step03；若最终分词意外落为Production_C/None，才退回Step04重选。所有下游旧锁定先失效，再重跑受影响链，不能把失败稿带到用户面前。</p>
+      <p><strong>Step06当前执行规则（优先）</strong>：先依据完整上游事实恢复自然交流环境，逐镜执行shot_beat（位置→动作→接触/路径→变化→反馈）。`final_dialogue_count/effective_speech_shortage`（Step04已证明双锚点、仅成稿漏记或反馈不足）可在既有场景、角色和核心资产内由Step06重导演并继续输出；`upstream_anchor_shortage`（双锚点未证实）必须内部回Step02/Step03或换候选。任何路径都不得新增核心剧情、角色、道具、规则、冲突或第二故事线；只有必需上游事实缺失或不可调和合同冲突才可单行BLOCKED。</p>
+      <p><a href="../outputs/coverage_reports/coverage_dashboard.html">打开分层词汇覆盖统计工具</a></p>
+      <div id="taskModeNotice" class="hint" hidden></div>
+      <div id="vocabularyContextPreview" class="vocab-context-card pending" role="status" aria-live="polite">
+        词汇白名单上下文尚未建立。可从覆盖统计工具选择词组，或直接填入能在主词表中准确定位的4个词。
+      </div>
+      <div class="vocab-context-card pending">
+        <strong>同一GPT对话请先上传并保留：短篇7个Excel；中长篇仍为6个Excel。</strong>
+        短篇：master_vocab_basic_with_pos.xlsx、master_vocab_advanced.xlsx、character_library.xlsx、reversal_mechanism_library.xlsx、reversal_case_library.xlsx、funny_detail_library.xlsx、natural_kids_animation_expression_library.xlsx。中长篇不使用最后一项自然表达资源库。
+      </div>
+    </section>
+
+    <div class="layout">
+      <section class="panel left">
+        <h2>输入信息</h2>
+        <div id="errorBox" class="error" role="alert" aria-live="assertive"></div>
+
+        <label>创作模式</label>
+        <div class="story-mode-grid">
+          <label class="story-mode-option">
+            <input type="radio" name="storyMode" value="short" checked>
+            <span>
+              <span class="story-mode-title">短篇绘本（动画）</span>
+              <span class="story-mode-duration">30秒—60秒</span>
+            </span>
+          </label>
+          <label class="story-mode-option">
+            <input type="radio" name="storyMode" value="long">
+            <span>
+              <span class="story-mode-title">中长篇绘本（动画）</span>
+              <span class="story-mode-duration">90秒以上</span>
+            </span>
+          </label>
+        </div>
+
+        <label for="groupId">词组编号</label>
+        <input id="groupId" type="text" value="G001">
+
+        <label>本组4个生词</label>
+        <div class="words">
+          <input id="word1" type="text" placeholder="例如 big">
+          <input id="word2" type="text" placeholder="例如 small">
+          <input id="word3" type="text" placeholder="例如 run">
+          <input id="word4" type="text" placeholder="例如 jump">
+        </div>
+
+        <label for="learnedWords">已学旧词（仅供页面记录）</label>
+        <textarea id="learnedWords" placeholder="从覆盖统计工具进入时会自动带入；生成Prompt时不再重复塞入这段长文本。"></textarea>
+
+        <label for="ageRange">目标年龄</label>
+        <select id="ageRange">
+          <option value="3-10岁">3-10岁</option>
+          <option value="3-6岁">3-6岁</option>
+          <option value="7-10岁">7-10岁</option>
+        </select>
+
+        <label>可用角色</label>
+        <div id="characterSummary" class="role-summary">当前已选择角色：0个</div>
+        <div id="characterList" class="role-grid"></div>
+
+        <label>反转机制参考方式</label>
+        <div class="tip">
+          反转机制是创意参考，不是限制。列表优先按“结果改变、关系变化、认知变化、价值变化、协作变化、责任变化、目标变化”展示反转方向；默认可参考全部机制，若只想强化部分方向或机制，再切换到“重点参考”。
+        </div>
+        <label class="check">
+          <input type="radio" name="templateMode" value="all" checked>
+          默认模式：参考全部反转机制
+        </label>
+        <label class="check">
+          <input type="radio" name="templateMode" value="partial">
+          可选模式：重点参考部分反转机制
+        </label>
+
+        <div id="templateCheckboxBlock">
+          <label>重点参考反转机制（可多选）</label>
+          <div id="mechanismSummary" class="role-summary">当前已选择反转机制：0个</div>
+          <div id="templateList" class="role-grid"></div>
+        </div>
+
+        <label class="check">
+          <input id="allowFusion" type="checkbox" checked>
+          允许多机制融合
+        </label>
+        <label class="check">
+          <input id="allowFreeReversal" type="checkbox" checked>
+          允许自由反转，不强行套机制
+        </label>
+
+        <label for="extraLimits">补充限制</label>
+        <textarea id="extraLimits" placeholder="例如：不要恐怖，不要追车，场景尽量在家里"></textarea>
+
+        <div class="buttons">
+          <button type="button" id="generateButton">生成故事生产流程 Prompt</button>
+          <button type="button" class="light" id="copyAllButton">复制全部（仅备份）</button>
+          <button type="button" class="light" id="clearButton">清空输出</button>
+        </div>
+
+        <div class="small-note"><strong>Step06当前规则（优先）</strong>：优先依据C卡环境地图恢复既有交流环境；地图不是资格证明，Production Space Execution Check仍独立执行。仅当地图未覆盖足够环境、检查仍确认某词不足两个空间，且不改变Step02故事核心与Step03视觉事实/状态链时，才可在核心事实边界内以已有角色、场景/资产和允许世界规则补充合规的非核心微情境、互动节拍或镜头，形成新的真实目的、对象、回应和可见反馈。此类短缺不得路由Step04或BLOCKED；只有必需上游事实缺失或不可调和合同冲突才单行BLOCKED。每篇normal或成功Repair正式剧本均逐行显示完整2—3个分配词的真实计数。若Step04尚未证明两个既有锚点，则属于`upstream_anchor_shortage`，必须内部回Step02/03或换候选；页面生成的UNVERIFIED提示只是草稿，不是可生产许可证。</div>
+        <div class="small-note"><strong>交接资产</strong>：C01—C06导演故事卡仅在编排器内部使用；最终页面只交付通过门禁的Step06剧本。</div>
+        <div class="small-note">Step06作为总导演兼最终对白导演；Natural Kids Animation Expression Bank Adapter只提供Dialogue Reference Sheet参考。目标词的容量、次数或初始交流空间不足时，优先在既有事实内补充合规的非核心微情境、互动节拍或镜头并复检；只有必需上游事实缺失或不可调和合同冲突才可单行BLOCKED。每篇normal或成功Repair正式剧本均须附轻量成稿检查。</div>
+        <div class="small-note">Step05作为Natural Kids Animation Expression Bank Adapter，Step06保留最终对白导演权；normal模式固定按三篇批次交付。</div>
+        <div class="small-note">交流容量修复有明确上限：每个分配词最多在已有事件内补一个非核心beat；不新增事件、状态或镜头链，不能把词汇短缺变成第二故事线。</div>
+        <div class="small-note">
+          “复制全部”只用于备份，不建议一次性粘贴给GPT；请在同一个GPT对话中按页面顺序逐步复制。这里的逐步复制仅保留为外部手工适配/备份模式；正常编排器运行仍由Step00—Step05内部交接，最终只交付通过门禁的Step06剧本。Step03必须一次输出完整S01—S12，Step03以S0→S1→可选升级→SF锁定唯一视觉事实，短标签压缩不削弱其唯一视觉事实源地位。Step04在内部完成故事组合与目标词生产资格判断，先在7—8条候选池上执行`Candidate Pool Composition Check`，确认至少存在一组同时满足固定4词覆盖、每词至少2篇、每篇2—3词且全为Production_A/B的可行六篇学习包；通过后才过滤不可执行组合、比较可行组合并锁定Top6。原先分散的资格检查已统一为内部`Target Word Production Check（内部）`，其Production证据不进入15字段导演故事卡。C卡新增`目标词语言承载环境地图`，逐词紧凑提示既有自然承载环境、角色行为、交流触发与可见反馈；它不是Production Node、次数/位置计划、固定对白或固定镜头。Step05以Dialogue Reference Sheet交付自然英语表达参考，不输出旧式语言机会或复杂语言分析。Step06从最终分词与Step01—03事实恢复故事，再作为总导演自主创作镜头、互动和对白；词汇容量或次数不足时，它必须在核心事实边界内补充合规微节拍，而不是路由Step04或BLOCKED。它固定分两批输出剧本（01—03、04—06）；每篇使用2—3个分配词，每词至少2次有效角色英文发言，并随每篇剧本附上轻量成稿检查。
+        </div>
+        <div class="small-note">
+          Production Space是上游判断用的稳定语言空间，不是一次出现、一次计数或固定句子；Visual Event ≠ Language Space。Step04只把Production_A/B关系分配进Top6，Step06不固定最终次数并拥有最终创作权：可以自然形成第3次、第4次、第5次及更多有效重复，也可在核心事实边界内补充非核心互动节拍；这不会反向把Step04的Production_C/None关系升级为可分配关系。每篇实际输出的剧本都必须按Step04分配的完整2—3词逐行显示真实正文出现和有效发言计数；不得通过省略、删行、隐藏零项或缩小扫描集合规避门槛。若内部草稿有任一词少于2次，Step06先补足、重导演并复检，草稿不得作为正式剧本输出。
+        </div>
+        <div class="small-note">
+          Step02的单词承载与Story Multi-Word Carrying Potential Check只负责让候选池更健康：自然双词承载故事优先目标为至少6条，4词均应参与并优先形成不同词对关系；若本组词义天然难组合，允许少于6条，但每词仍须保有多个自然候选机会和足够双词供给，且不得牺牲儿童观看、喜剧或优秀单词强承载故事的质量。这不是公开组合表，也不替代Step04分词。Step04保持固定4词学习包、最终分词资格与三阶段Top6选择；`Candidate Pool Composition Check`先验证候选池确有合格六篇包，再由Story Target Count Gate要求每篇都是2—3个彼此独立的Production_A/B词，单词故事、“主词 + 免费附加词”及补覆盖第三词均不得混入。若任一词无法通过资格，必须重分词、换故事或重组Top6，不能淘汰目标词或降低门槛。C卡固定3个身份字段 + 12个导演字段、共15字段；新增地图仍只压缩Step02/03/04既有事实，既帮助Step06恢复自然交流环境，也不削弱其最终导演权。
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>生成结果</h2>
+        <div class="tip">
+        短篇按Step00→Step01→Step02→Step03→Step04→Step05→Step06顺序使用。Step02—Step05的完整资产只在编排器内部交接；Step04的A/B/C不是用户批次。Step06在不改变核心故事、反转、角色、关键资产、世界规则或Step03状态链的前提下导演最终镜头和对白，必要时只补既有世界内的非核心交流节拍。语义或复杂度失败必须内部退回并清理旧下游锁后重跑，不能向用户输出空包、半成品或“无法输出”；只有必需事实缺失或不可调和冲突才单行BLOCKED。normal模式固定按三篇批次交付；每篇只用2—3个分配词，每词至少2次有效角色英文发言，轻量成稿检查随每篇实际剧本逐行显示完整分配词的真实计数。Repair只在既有核心事实内补足并复检，发现语义失败则切换上游恢复。</p>
+        </div>
+        <div id="output"></div>
+      </section>
+    </div>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite">已复制</div>
+
+  <script src="character_library_data.js"></script>
+  <script src="reversal_mechanisms_data.js"></script>
+  <script src="vocabulary_whitelist_data.js"></script>
+  <script src="vocabulary_guard.js"></script>
+  <script src="prompt_mode_data.js"></script>
+  <script src="index_context.js"></script>
+  <script src="index_selection_policy.js"></script>
+  <script src="index_prompts.js"></script>
+</body>
+</html>
+
