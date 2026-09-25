@@ -1,0 +1,266 @@
+Warning: fs was declared with const; use let for reassignable variables.
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>反转喜剧动画故事板制作工具</title>
+  <meta name="description" content="将短篇或长篇正式剧本转换为分镜故事板与逐镜Seedance提示词的离线工具。">
+  <link rel="stylesheet" href="storyboard.css">
+</head>
+<body>
+  <main class="page-shell">
+    <header class="app-header no-print">
+      <div>
+        <p class="eyebrow">Storyboard Studio · Offline</p>
+        <h1>反转喜剧动画故事板制作工具</h1>
+        <p class="subtitle">正式剧本 → 分镜故事板 → 单镜Seedance提示词。离线使用，不接API。</p>
+      </div>
+      <div class="header-actions">
+        <a class="button-link secondary" href="index.html">← 返回故事生产工具</a>
+        <button id="printTopButton" type="button" class="ghost">打印 / 另存PDF</button>
+      </div>
+    </header>
+
+    <div class="workflow-strip no-print" aria-label="使用步骤">
+      <div class="workflow-step active">1. 粘贴六个剧本</div>
+      <div class="workflow-step">2. 制作设置</div>
+      <div class="workflow-step">3. 生成精简Prompt</div>
+      <div class="workflow-step">4. 粘贴GPT草案</div>
+      <div class="workflow-step">5. 自检与安全纠错</div>
+      <div class="workflow-step">6. 编辑故事板</div>
+    </div>
+
+    <section class="card no-print" aria-labelledby="script-input-title">
+      <div class="card-heading">
+        <div>
+          <h2 id="script-input-title">一、剧本输入</h2>
+          <p>一次粘贴Step06生成的六个正式剧本；页面会识别剧本01—06，后续逐部处理。</p>
+        </div>
+        <div class="mode-switch" role="radiogroup" aria-label="故事模式">
+          <label class="mode-option">
+            <input type="radio" name="storyboardMode" value="short">
+            <span>短篇 · 30—90秒</span>
+          </label>
+          <label class="mode-option">
+            <input type="radio" name="storyboardMode" value="long">
+            <span>长篇 · 90秒以上</span>
+          </label>
+        </div>
+      </div>
+
+      <section class="vocabulary-scope" aria-labelledby="vocabulary-scope-title">
+        <div class="vocabulary-scope-heading">
+          <h3 id="vocabulary-scope-title">词汇范围</h3>
+          <div class="vocabulary-source-options" role="radiogroup" aria-label="词汇范围来源">
+            <label><input type="radio" name="vocabularySource" value="task" checked> 沿用任务范围</label>
+            <label><input type="radio" name="vocabularySource" value="manual"> 手动设置范围</label>
+          </div>
+        </div>
+        <div id="manualVocabularyFields" hidden>
+          <div class="form-grid">
+            <div class="field">
+              <label class="field-label" for="manualVocabLevel">词汇层级</label>
+              <select id="manualVocabLevel">
+                <option value="basic">基础词汇</option>
+                <option value="advanced">高级词汇</option>
+              </select>
+            </div>
+            <div id="manualBasicRangeField" class="field">
+              <label class="field-label" for="manualBasicRange">基础词范围（basic_order_rank）</label>
+              <input id="manualBasicRange" type="text" placeholder="例如：1-495 或 495" aria-describedby="manualRangeHint">
+            </div>
+            <div id="manualAdvancedGroupField" class="field" hidden>
+              <label class="field-label" for="manualAdvancedGroup">当前高级 Group</label>
+              <input id="manualAdvancedGroup" type="text" inputmode="numeric" placeholder="例如：10" aria-describedby="manualRangeHint">
+            </div>
+            <div class="field">
+              <label class="field-label" for="manualTargetWords">本组学习台词目标词（4个）</label>
+              <input id="manualTargetWords" type="text" spellcheck="false" placeholder="stink / break / dive / hope">
+            </div>
+          </div>
+          <p id="manualRangeHint" class="field-note"></p>
+          <div class="card-actions">
+            <button id="applyVocabularyRangeButton" type="button">应用范围并检查剧本</button>
+          </div>
+          <div id="manualVocabularyStatus" class="status-box" role="status" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <div class="vocabulary-context-panel">
+        <div id="vocabularyContextStatus" class="status-box" role="status" aria-live="polite">
+          正在读取当前模式的vocabulary-context-v1词汇上下文。
+        </div>
+        <a class="button-link secondary small-link" href="index.html">← 返回故事生产工具重新建立词汇上下文</a>
+      </div>
+
+      <div class="inline-notice">
+        <strong>识别排除：</strong>每部剧本末尾的“轻量成稿检查”属于内部审核说明，其中出现的英文、词频和步骤名称不参与词汇白名单识别。
+      </div>
+
+      <label class="field-label" for="scriptsInput">
+        <span>六个正式剧本</span>
+        <span class="field-note">识别格式：# 剧本01：《标题》</span>
+      </label>
+      <textarea id="scriptsInput" spellcheck="false" placeholder="# 剧本01：《标题》&#10;人物：……&#10;预计时长：……&#10;……&#10;&#10;# 剧本02：《标题》&#10;……"></textarea>
+      <div class="card-actions">
+        <button id="parseScriptsButton" type="button">识别六个剧本</button>
+        <button id="clearModeButton" type="button" class="danger">清空当前模式</button>
+      </div>
+      <div id="scriptParseStatus" class="status-box" role="status" aria-live="polite">尚未识别剧本。</div>
+      <div id="scriptTabs" class="script-tabs" role="tablist" aria-label="剧本列表"></div>
+      <section class="vocabulary-guard-panel" aria-labelledby="vocabulary-guard-title">
+        <div class="guard-heading">
+          <div>
+            <h3 id="vocabulary-guard-title">儿童英语词汇白名单防火墙</h3>
+            <p>识别剧本时自动检查英文标题、对白、字幕、旁白和画面内英文；制作说明、字段名、音效和说话者标签不参与检查。</p>
+          </div>
+          <button id="copyVocabularyRepairButton" type="button" class="secondary" disabled>复制当前剧本返修Prompt</button>
+        </div>
+        <div id="vocabularyGuardStatus" class="status-box" role="status" aria-live="polite">
+          尚未执行词汇白名单检查。当前选中剧本通过后，即可生成分镜Prompt。
+        </div>
+        <div id="vocabularyViolationGroups" class="violation-groups"></div>
+        <div class="vocabulary-repair-grid">
+          <div id="vocabularyRepairSummary" class="status-box" role="status" aria-live="polite">
+            完成白名单检测后，当前违规剧本的返修Prompt会自动显示。
+          </div>
+          <label class="field-label" for="vocabularyRepairPromptOutput">
+            <span>自动生成返修Prompt预览</span>
+            <span class="field-note">已包含违规位置和完整Allowed Vocabulary</span>
+          </label>
+          <textarea id="vocabularyRepairPromptOutput" readonly spellcheck="false" placeholder="当前剧本存在白名单违规时，程序会在这里自动生成完整返修Prompt。"></textarea>
+          <label class="field-label" for="revisedScriptInput">
+            <span>当前剧本修正版</span>
+            <span class="field-note">把GPT返修结果粘贴回这里，必须包含当前剧本的完整标题和正文</span>
+          </label>
+          <textarea id="revisedScriptInput" spellcheck="false" placeholder="# 剧本01：《English Title（中文标题）》&#10;粘贴当前编号的完整修正版剧本"></textarea>
+          <div class="card-actions">
+            <button id="replaceRevisedScriptButton" type="button" disabled>替换当前剧本并重新检查</button>
+          </div>
+          <p class="field-note">返修Prompt已包含完整Allowed Vocabulary，可粘贴到新的GPT对话；不需要重新上传或读取Excel。</p>
+        </div>
+      </section>
+    </section>
+
+    <section class="card no-print" aria-labelledby="settings-title">
+      <div class="card-heading">
+        <div>
+          <h2 id="settings-title">二、制作设置</h2>
+          <p id="modePolicyText">短篇默认6—8个Cut；长篇至少10个Cut并随时长增加。</p>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label class="field-label" for="aspectRatio">画幅</label>
+          <select id="aspectRatio">
+            <option value="16:9">16:9 横屏</option>
+            <option value="9:16">9:16 竖屏</option>
+            <option value="1:1">1:1 方形</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label" for="cutPolicy">镜头数量</label>
+          <select id="cutPolicy"></select>
+        </div>
+        <div class="field">
+          <label class="field-label" for="sketchStyle">草图风格</label>
+          <input id="sketchStyle" type="text" value="黑白铅笔线稿，清楚构图，简洁表情与动作线">
+        </div>
+        <div class="field">
+          <label class="field-label" for="animationStyle">动画风格</label>
+          <input id="animationStyle" type="text" value="明亮、柔和、适合3-10岁儿童的卡通动画">
+        </div>
+        <div class="field">
+          <label class="field-label" for="sceneStyle">场景风格</label>
+          <input id="sceneStyle" type="text" value="造型简洁、色彩清楚、道具位置易辨认">
+        </div>
+        <div class="field">
+          <label class="field-label" for="extraLimits">补充限制</label>
+          <input id="extraLimits" type="text" placeholder="例如：避免快速旋转镜头；保持角色服装不变">
+        </div>
+      </div>
+    </section>
+
+    <div class="split-layout no-print">
+      <section class="card" aria-labelledby="prompt-title">
+        <div class="card-heading">
+          <div>
+            <h2 id="prompt-title">三、生成当前剧本精简Prompt</h2>
+            <p id="currentPromptStory">请先识别并选择一个剧本。</p>
+          </div>
+          <div class="card-actions">
+            <button id="generatePromptButton" type="button" disabled>生成精简Prompt</button>
+            <button id="copyPromptButton" type="button" class="secondary" disabled>复制完整Prompt</button>
+          </div>
+        </div>
+        <div class="inline-notice"><strong>输出已减负：</strong>GPT只生成紧凑分镜草案，不再生成长篇Seedance字段。网页会在第五步安全纠错，并在确认后本地组装每镜Seedance Prompt。</div>
+        <textarea id="promptOutput" spellcheck="false" placeholder="生成后的精简分镜Prompt会显示在这里；请完整复制到原生产流程同一GPT对话（已上传六个Excel）。"></textarea>
+      </section>
+
+      <section class="card" aria-labelledby="json-title">
+        <div class="card-heading">
+          <div>
+            <h2 id="json-title">四、粘贴GPT分镜草案</h2>
+            <p>接受storyboard-draft-v2纯JSON、带代码围栏的JSON，也兼容旧版有效storyboard-package-v1。</p>
+          </div>
+          <div class="card-actions">
+            <button id="renderJsonButton" type="button">检查并安全纠错</button>
+          </div>
+        </div>
+        <textarea id="jsonInput" spellcheck="false" placeholder='粘贴 schema_version 为 "storyboard-draft-v2" 的精简JSON草案。'></textarea>
+        <div id="jsonStatus" class="status-box" role="status" aria-live="polite">尚未检查GPT草案。</div>
+      </section>
+    </div>
+
+    <section class="card repair-card no-print" aria-labelledby="repair-title">
+      <div class="card-heading">
+        <div>
+          <h2 id="repair-title">五、自检与安全纠错</h2>
+          <p>只修复JSON语法和可确定字段，不补写镜头、动作、反转或英文台词。</p>
+        </div>
+        <div class="card-actions">
+          <button id="revalidateButton" type="button" class="secondary" disabled>重新校验</button>
+          <button id="copyCorrectionPromptButton" type="button" class="ghost" disabled>复制精简纠错Prompt</button>
+          <button id="confirmBoardButton" type="button" disabled>确认并生成故事板</button>
+        </div>
+      </div>
+      <div class="repair-layout">
+        <div>
+          <label class="field-label" for="repairedJsonOutput">
+            <span>修复后草案</span>
+            <span class="field-note">可手动修改，修改后需要重新校验</span>
+          </label>
+          <textarea id="repairedJsonOutput" spellcheck="false" placeholder="安全纠错后的JSON会显示在这里。"></textarea>
+        </div>
+        <div class="repair-report-stack">
+          <div id="repairStatus" class="status-box" role="status" aria-live="polite">尚未执行安全纠错。</div>
+          <div id="repairLog" class="status-box" role="status">自动修复记录将在这里显示。</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="boardCard" class="card board-card" aria-labelledby="board-title">
+      <div class="board-toolbar">
+        <div class="board-title">
+          <h2 id="board-title">六、故事板工作区</h2>
+          <p id="boardSubtitle">选择一个已完成的剧本故事板进行查看与编辑。</p>
+        </div>
+        <div class="board-actions no-print">
+          <button id="rebuildAllSeedanceButton" type="button" class="ghost">重建全部Seedance Prompt</button>
+          <button id="copyStoryJsonButton" type="button" class="secondary">复制当前JSON</button>
+          <button id="printButton" type="button" class="ghost">打印 / 另存PDF</button>
+        </div>
+      </div>
+      <div id="boardContent" class="empty-board">尚未生成故事板。</div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="storyboard_prompt_data.js"></script>
+  <script src="vocabulary_whitelist_data.js"></script>
+  <script src="vocabulary_guard.js"></script>
+  <script src="storyboard.js"></script>
+</body>
+</html>
