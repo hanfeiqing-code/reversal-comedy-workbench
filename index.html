@@ -1,0 +1,160 @@
+Warning: fs was declared with const; use let for reassignable variables.
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="反转喜剧动画全流程制作工具台：词汇覆盖统计、故事生产流程与故事板制作。">
+  <link rel="canonical" href="https://reversal-comedy-workbench.simple-mark865.chatgpt.site/">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <title>反转喜剧动画全流程制作工具台</title>
+  <link rel="stylesheet" href="workbench.css">
+  <script src="workbench.js" defer></script>
+</head>
+<body>
+  <div
+    id="workbenchShell"
+    class="workbench-shell"
+    data-active-tool="coverage"
+  >
+    <aside class="workbench-sidebar" aria-label="动画制作流程">
+      <div class="sidebar-brand">
+        <span class="brand-mark" aria-hidden="true">RC</span>
+        <div class="brand-copy">
+          <p class="brand-eyebrow">REVERSAL COMEDY</p>
+          <p class="brand-title">动画全流程制作工具台</p>
+        </div>
+      </div>
+
+      <button
+        id="sidebarToggle"
+        class="sidebar-toggle"
+        type="button"
+        aria-expanded="true"
+        aria-label="收起工具栏"
+        title="收起工具栏"
+      >
+        <span class="toggle-icon" aria-hidden="true"></span>
+      </button>
+
+      <nav
+        class="tool-nav"
+        role="tablist"
+        aria-label="制作阶段"
+        aria-orientation="vertical"
+      >
+        <button
+          id="toolTabCoverage"
+          class="tool-tab is-active"
+          type="button"
+          role="tab"
+          data-tool-tab="coverage"
+          data-tooltip="词汇覆盖统计"
+          aria-controls="toolPanelCoverage"
+          aria-selected="true"
+          tabindex="0"
+          title="词汇覆盖统计"
+        >
+          <span class="tool-step" aria-hidden="true">01</span>
+          <span class="tool-copy">
+            <span class="tool-label">词汇覆盖统计</span>
+            <span class="tool-description">选出本轮 4 个目标词</span>
+          </span>
+        </button>
+
+        <button
+          id="toolTabProduction"
+          class="tool-tab"
+          type="button"
+          role="tab"
+          data-tool-tab="production"
+          data-tooltip="故事生产流程"
+          aria-controls="toolPanelProduction"
+          aria-selected="false"
+          tabindex="-1"
+          title="故事生产流程"
+        >
+          <span class="tool-step" aria-hidden="true">02</span>
+          <span class="tool-copy">
+            <span class="tool-label">故事生产流程</span>
+            <span class="tool-description">生成并审查六个剧本</span>
+          </span>
+        </button>
+
+        <button
+          id="toolTabStoryboard"
+          class="tool-tab"
+          type="button"
+          role="tab"
+          data-tool-tab="storyboard"
+          data-tooltip="故事板制作"
+          aria-controls="toolPanelStoryboard"
+          aria-selected="false"
+          tabindex="-1"
+          title="故事板制作"
+        >
+          <span class="tool-step" aria-hidden="true">03</span>
+          <span class="tool-copy">
+            <span class="tool-label">故事板制作</span>
+            <span class="tool-description">拆镜与 Seedance Prompt</span>
+          </span>
+        </button>
+      </nav>
+
+      <footer class="sidebar-footer">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span class="offline-copy">本地离线 · 数据不上传</span>
+      </footer>
+    </aside>
+
+    <main class="workbench-stage" aria-label="工具工作区">
+      <section
+        id="toolPanelCoverage"
+        class="tool-panel is-active"
+        role="tabpanel"
+        data-tool-panel="coverage"
+        aria-labelledby="toolTabCoverage"
+      >
+        <iframe
+          class="tool-frame"
+          data-tool-frame="coverage"
+          data-src="outputs/coverage_reports/coverage_dashboard.html"
+          title="词汇覆盖统计工具"
+        ></iframe>
+      </section>
+
+      <section
+        id="toolPanelProduction"
+        class="tool-panel"
+        role="tabpanel"
+        data-tool-panel="production"
+        aria-labelledby="toolTabProduction"
+        hidden
+      >
+        <iframe
+          class="tool-frame"
+          data-tool-frame="production"
+          data-src="app/index.html"
+          title="故事生产流程工具"
+        ></iframe>
+      </section>
+
+      <section
+        id="toolPanelStoryboard"
+        class="tool-panel"
+        role="tabpanel"
+        data-tool-panel="storyboard"
+        aria-labelledby="toolTabStoryboard"
+        hidden
+      >
+        <iframe
+          class="tool-frame"
+          data-tool-frame="storyboard"
+          data-src="app/storyboard.html"
+          title="故事板制作工具"
+        ></iframe>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
